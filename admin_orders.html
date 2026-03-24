@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Đơn Hàng - Admin</title>
+    <link rel="stylesheet" href="Style/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .admin-header {
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container-fluid {
+            width: 95%;
+            margin: 30px auto;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #333;
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .btn-logout {
+            background: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-action {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .empty-msg {
+            text-align: center;
+            padding: 40px;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-header">
+        <div class="logo">
+            <h3>THE ANH SHOP - ADMIN</h3>
+        </div>
+        <div>
+            <span>Xin chào, Admin</span>
+            <button class="btn-logout" onclick="logoutAdmin()">Đăng Xuất</button>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <h2>📦 Danh Sách Đơn Hàng Mới</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mã Đơn</th>
+                    <th>Ngày Đặt</th>
+                    <th>Khách Hàng</th>
+                    <th>Tổng Tiền</th>
+                    <th>Trạng Thái</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody id="orderList"></tbody>
+        </table>
+    </div>
+
+    <script>
+        if (!sessionStorage.getItem('isAdminLoggedIn')) {
+            window.location.href = 'admin_login.html';
+        }
+
+        function logoutAdmin() {
+            sessionStorage.removeItem('isAdminLoggedIn');
+            window.location.href = 'admin_login.html';
+        }
+
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem('admin_orders')) || [];
+            const tbody = document.getElementById('orderList');
+            tbody.innerHTML = '';
+
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">Chưa có đơn hàng nào</td></tr>';
+                return;
+            }
+
+            orders.reverse().forEach((order, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>#${order.id}</td><td>${order.date}</td><td>${order.customer}</td><td style="font-weight:bold; color: #d63031;">${order.total}</td><td><span class="status ${order.status === 'Xong' ? 'completed' : 'pending'}">${order.status}</span></td><td><button class="btn-action" onclick="toggleStatus(${orders.length - 1 - index})">${order.status === 'Mới' ? 'Duyệt đơn' : 'Hoàn tác'}</button></td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleStatus(i) { const o = JSON.parse(localStorage.getItem('admin_orders')); o[i].status = o[i].status === 'Mới' ? 'Xong' : 'Mới'; localStorage.setItem('admin_orders', JSON.stringify(o)); loadOrders(); }
+        window.onload = loadOrders;
+    </script>
+</body>
+
+</html>
